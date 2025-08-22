@@ -14,6 +14,7 @@ with open("gmail_app.txt") as f:
     EMAIL_APP_PASSWORD = f.read().strip()
 
 nsending = 4   # 每次寄信的間隔小時數
+seasonde_dir = "CodarData/Codar/SeaSonde"
 
 # 建立測站與負責人對應的字典
 # 徑向資料站點負責人
@@ -110,7 +111,7 @@ def send_email_via_gmail(subject, message, recipient):
 
 def get_file_size_radial(t, site, ideal_or_meas):
 
-    path_radial = f"CodarData/Codar/SeaSonde/Data/RadialSites/Site_{site}_{ideal_or_meas.lower()}/"
+    path_radial = f"{seasonde_dir}/Data/RadialSites/Site_{site}_{ideal_or_meas.lower()}/"
     filepath = generate_filename_radial(t, site, path_radial, ideal_or_meas)
     file_size = get_file_size(filepath)
 
@@ -119,7 +120,7 @@ def get_file_size_radial(t, site, ideal_or_meas):
 
 def get_file_size_totals(t, tor4_or_toro):
 
-    path_totals = f"CodarData/Codar/SeaSonde/Data/Totals/Totals_{tor4_or_toro.upper()}"
+    path_totals = f"{seasonde_dir}/Data/Totals/Totals_{tor4_or_toro.upper()}"
     filepath = generate_filename_totals(t, path_totals)
     file_size = get_file_size(filepath)
 

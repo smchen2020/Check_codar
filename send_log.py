@@ -46,8 +46,32 @@ log_name = f"{year}-{month:02}-{day:02}.log"
 with open(f"Log/{log_name}", "r") as f:
     log_content = f.readlines()
 
+# 將 log 內容的時間順序反轉
+# 分段：每遇到 "檢查時間" 開頭的行就開始新區塊
+blocks = []
+current_block = []
+
+for line in log_content:
+
+    if "Radial 檢查時間" in line and current_block:
+        blocks.append(current_block)
+        current_block = []
+
+    current_block.append(line)
+
+if current_block:
+    blocks.append(current_block)
+
+# 反轉區塊順序（由新至舊）
+blocks = blocks[::-1]
+
+# 合併回單一 list
+log_content_new = []
+for block in blocks:
+    log_content_new.extend(block)
+
 # 將 log 內容用 HTML 格式包裝
-rows = [line.strip().split(maxsplit=4) for line in log_content]
+rows = [line.strip().split(maxsplit=4) for line in log_content_new]
 
 html = "<html><body><table>"
 

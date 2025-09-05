@@ -41,8 +41,13 @@ all_sites = ["BABY", "CIHO", "FALA", "HPON", "HOWN",
             "PETI", "SDGO", "SHIA", "SUHI", "TUTL"]
 
 # 合成資料負責人
-toro_mail = ["shiming.chen@gmail.com"]
+totals_person = {
+    "TORO": ["shiming.chen@gmail.com"],
+    "TOR4": ["shiming.chen@gmail.com"],
+    "KNTN": ["shiming.chen@gmail.com"]
+}
 
+all_totals = ["TORO", "TOR4", "KNTN"]
 
 # 加上時間標記的 log 輸出
 def log(fname, msg):
@@ -203,9 +208,9 @@ def check_totals(t_radar, t_now, min_file_size=1000):
 
     t_log_str = f"{t_radar['year']}_{t_radar['month']}_{t_radar['day']}_{t_radar['hour']}00"
 
-    for dd in ['TORO', 'TOR4']:
+    for dd in all_totals:
 
-        # 檢查 radial ideal 資料檔案大小
+        # 檢查 totals 資料檔案大小
         file_size, filepath = get_file_size_totals(t_radar, dd)
 
         # 如果檔案大小小於最小值，則記錄異常並發送警告郵件
@@ -214,16 +219,19 @@ def check_totals(t_radar, t_now, min_file_size=1000):
             log_msg = f"*{dd}* 異常 {t_log_str}"
             log(fname, log_msg)
 
-            # 檢查是否已經寄出警告信，如果已寄出就不再寄，
-            # 除非寄出後經過設定的次數後仍然異常，則再寄一次
-            to_send = check_sending(dd, t_radar)
+            # 只有在 totals_person 有設定負責人的測站才寄信
+            if dd in totals_person:
 
-            if to_send:
-                # 寄出警告信
-                subject = f"Totals {dd} 異常警示"
-                message = f"{t_log_str} {dd} 檔案異常，請盡速確認系統狀況。"
-                message += f"\n\n檔案: {filepath}\n"
-                send_email_via_gmail(subject, message, toro_mail)
+                # 檢查是否已經寄出警告信，如果已寄出就不再寄，
+                # 除非寄出後經過設定的次數後仍然異常，則再寄一次
+                to_send = check_sending(dd, t_radar)
+
+                if to_send:
+                    # 寄出警告信
+                    subject = f"Totals {dd} 異常警示"
+                    message = f"{t_log_str} {dd} 檔案異常，請盡速確認系統狀況。"
+                    message += f"\n\n檔案: {filepath}\n"
+                    send_email_via_gmail(subject, message, totals_person[dd])
 
         else:
 

@@ -34,6 +34,12 @@ site_person = {
     # "OHAL": ["shiming.chen@gmail.com"],
 }
 
+# 所有測站清單，會根據這個清單檢查所有測站並記錄在
+# 但寄信給負責人是根據 site_person 有啟用的測站
+all_sites = ["BABY", "CIHO", "FALA", "HPON", "HOWN",
+            "LUYE", "MABT", "MYLA", "NAWN", "OHAL",
+            "PETI", "SDGO", "SHIA", "SUHI", "TUTL"]
+
 # 合成資料負責人
 toro_mail = ["shiming.chen@gmail.com"]
 
@@ -137,7 +143,7 @@ def check_radial(t_radar, t_now, min_file_size=1000):
     log(fname, f"Radial 檢查時間: {t_now_str}")
 
     # 檢索所有站點
-    for site in list(site_person.keys()):
+    for site in all_sites:
 
         warning = {'meas': False, 'ideal': False}
         filepath = {}
@@ -156,22 +162,25 @@ def check_radial(t_radar, t_now, min_file_size=1000):
             log_msg = f"*{site}* 異常 {t_radar_log}"
             log(fname, log_msg)
 
-            # 檢查是否已經寄出警告信，如果已寄出就不再寄，
-            # 除非寄出後經過設定的次數後仍然異常，則再寄一次
-            site_str = f"{site}"
-            to_send = check_sending(site_str, t_radar)
+            # 只有在 site_person 有設定負責人的測站才寄信
+            if site in site_person:
 
-            if to_send:
-                # 寄出警告信
-                subject = f"{site} Radial 異常警示"
-                message = f"{site} {t_radar_log} 檔案異常，請盡速確認系統狀況。\n\n"
-                
-                if warning['meas']:
-                    message += f"{filepath['meas']}\n"
-                if warning['ideal']:
-                    message += f"{filepath['ideal']}\n"
-                
-                send_email_via_gmail(subject, message, site_person[site])
+                # 檢查是否已經寄出警告信，如果已寄出就不再寄，
+                # 除非寄出後經過設定的次數後仍然異常，則再寄一次
+                site_str = f"{site}"
+                to_send = check_sending(site_str, t_radar)
+
+                if to_send:
+                    # 寄出警告信
+                    subject = f"{site} Radial 異常警示"
+                    message = f"{site} {t_radar_log} 檔案異常，請盡速確認系統狀況。\n\n"
+                    
+                    if warning['meas']:
+                        message += f"{filepath['meas']}\n"
+                    if warning['ideal']:
+                        message += f"{filepath['ideal']}\n"
+                    
+                    send_email_via_gmail(subject, message, site_person[site])
 
         else:
             

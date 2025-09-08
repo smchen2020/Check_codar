@@ -22,7 +22,7 @@ site_person = {
     "BABY": ["shiming.chen@gmail.com", "shiming.chen@gmail.com"],
     "CIHO": ["shiming.chen@gmail.com", "shiming.chen@gmail.com"],
     "FALA": ["shiming.chen@gmail.com", "shiming.chen@gmail.com"],
-    "HPON": ["shiming.chen@gmail.com", "shiming.chen@gmail.com"],
+    "HOPN": ["shiming.chen@gmail.com", "shiming.chen@gmail.com"],
     "HOWN": ["shiming.chen@gmail.com", "shiming.chen@gmail.com"],
     # "LUYE": ["shiming.chen@gmail.com"],
     # "MABT": ["shiming.chen@gmail.com"],
@@ -36,7 +36,7 @@ site_person = {
 
 # 所有測站清單，會根據這個清單檢查所有測站並記錄在
 # 但寄信給負責人是根據 site_person 有啟用的測站
-all_sites = ["BABY", "CIHO", "FALA", "HPON", "HOWN",
+all_sites = ["BABY", "CIHO", "FALA", "HOPN", "HOWN",
             "LUYE", "MABT", "MYLA", "NAWN", "OHAL",
             "PETI", "SDGO", "SHIA", "SUHI", "TUTL"]
 

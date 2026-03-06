@@ -13,7 +13,9 @@ with open("gmail_app.txt") as f:
     # 從檔案讀取 Gmail 應用程式密碼
     EMAIL_APP_PASSWORD = f.read().strip()
 
-recipient = ["shiming.chen@gmail.com"]
+#recipient = ["chiayan.cheng@gmail.com", "shaohua@niar.org.tw"]
+recipient = ["chiayan.cheng@gmail.com", "shaohua@niar.org.tw", "shiming.chen@gmail.com"]
+#recipient = ["shiming.chen@gmail.com"]
 
 
 # 使用 Gmail SMTP 發送 Email
@@ -90,3 +92,5 @@ for row in rows:
 html += "</table></body></html>"
 
 send_email_via_gmail(f"Log Report - {log_name}", html, recipient)
+
+print(f'OK to send log  {t_now_p8}')

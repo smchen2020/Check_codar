@@ -9,19 +9,22 @@
   <key>ProgramArguments</key>
   <array>
     <string>/bin/bash</string>
-    <string>/Users/codar/Desktop/Check_CODAR_file/Run_check_file.sh</string>
+    <string>/Users/codar/Public/Check_CODAR_file/Run_check_file.sh</string>
   </array>
 
   <key>StartCalendarInterval</key>
   <dict>
     <key>Minute</key>
-    <integer>10</integer>
+    <integer>0</integer>
   </dict>
 
   <key>StandardOutPath</key>
-  <string>/Users/codar/Desktop/Check_CODAR_file/checkfile.out</string>
+  <string>/Users/codar/Public/Check_CODAR_file/checkfile.out</string>
 
   <key>StandardErrorPath</key>
-  <string>/Users/codar/Desktop/Check_CODAR_file/checkfile.err</string>
+  <string>/Users/codar/Public/Check_CODAR_file/checkfile.err</string>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/codar/Public/Check_CODAR_file</string>
 </dict>
 </plist>

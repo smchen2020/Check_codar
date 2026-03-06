@@ -9,18 +9,24 @@
   <key>ProgramArguments</key>
   <array>
     <string>/bin/bash</string>
-    <string>/Users/codar/Desktop/Check_CODAR_file/Run_send_log.sh</string>
+    <string>/Users/codar/Public/Check_CODAR_file/Run_send_log.sh</string>
   </array>
 
   <key>StartCalendarInterval</key>
   <dict>
     <key>Hour</key>
-    <integer>8</integer>
+    <integer>1</integer>
     <key>Minute</key>
     <integer>0</integer>
   </dict>
 
+  <key>StandardOutPath</key>
+  <string>/Users/codar/Public/Check_CODAR_file/sendlog.out</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/codar/Public/Check_CODAR_file/sendlog.err</string>
+
   <key>WorkingDirectory</key>
-  <string>/tmp/Check_CODAR_filesize</string>
+  <string>/Users/codar/Public/Check_CODAR_file</string>
 </dict>
 </plist>

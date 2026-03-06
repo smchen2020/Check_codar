@@ -6,6 +6,9 @@ import os
 import datetime
 import smtplib
 from email.mime.text import MIMEText
+import numpy as np
+import warnings
+
 
 # Email 設定
 EMAIL_FROM = "shiming.chen@gmail.com"       # <-- 改成你的 Gmail
@@ -14,37 +17,39 @@ with open("gmail_app.txt") as f:
     EMAIL_APP_PASSWORD = f.read().strip()
 
 nsending = 4   # 每次寄信的間隔小時數
-seasonde_dir = "CodarData/Codar/SeaSonde"
+seasonde_dir = "/Codar/SeaSonde"
 
 # 建立測站與負責人對應的字典
 # 徑向資料站點負責人
 site_person = {
-    "BABY": ["shiming.chen@gmail.com", "shiming.chen@gmail.com"],
-    "CIHO": ["shiming.chen@gmail.com", "shiming.chen@gmail.com"],
-    "FALA": ["shiming.chen@gmail.com", "shiming.chen@gmail.com"],
-    "HOPN": ["shiming.chen@gmail.com", "shiming.chen@gmail.com"],
-    "HOWN": ["shiming.chen@gmail.com", "shiming.chen@gmail.com"],
-    # "LUYE": ["shiming.chen@gmail.com"],
-    # "MABT": ["shiming.chen@gmail.com"],
-    # "NAWN": ["shiming.chen@gmail.com"],
-    # "PETI": ["shiming.chen@gmail.com"],
-    # "SDGO": ["shiming.chen@gmail.com"],
-    # "SHIA": ["shiming.chen@gmail.com"],
-    # "SUHI": ["shiming.chen@gmail.com"],
-    # "OHAL": ["shiming.chen@gmail.com"],
+    "SJWN": ["sawind1519@gmail.com", "chiayan.cheng@gmail.com"],
+    "CIHO": ["mey08100225@gmail.com", "chiayan.cheng@gmail.com"],
+    "FALA": ["mey08100225@gmail.com", "chiayan.cheng@gmail.com"],
+    "HOPN": ["sydney@niar.org.tw", "chiayan.cheng@gmail.com"],
+    "HOWN": ["sawind1519@gmail.com", "chiayan.cheng@gmail.com"],
+    #"SISE": ["sydney@niar.org.tw", "chiayan.cheng@gmail.com"],
+    "MABT": ["sawind1519@gmail.com", "chiayan.cheng@gmail.com"],
+    #"TUYN": ["mey08100225@gmail.com", "chiayan.cheng@gmail.com"],
+    "NAWN": ["sawind1519@gmail.com", "chiayan.cheng@gmail.com"],
+    "HOLA": ["chiayan.cheng@gmail.com"],
+    "PETI": ["mey08100225@gmail.com", "chiayan.cheng@gmail.com"],
+    "MAGN": ["chiayan.cheng@gmail.com"],
+    "SIYL": ["sydney@niar.org.tw", "chiayan.cheng@gmail.com"],
+    "SUHY": ["sawind1519@gmail.com", "chiayan.cheng@gmail.com"],
+    "SIGK": ["sydney@niar.org.tw", "chiayan.cheng@gmail.com"],
 }
 
-# 所有測站清單，會根據這個清單檢查所有測站並記錄在
+# 所有測站清單，會根據這個清單檢查所有測站並記錄在log
 # 但寄信給負責人是根據 site_person 有啟用的測站
-all_sites = ["BABY", "CIHO", "FALA", "HOPN", "HOWN",
-            "LUYE", "MABT", "MYLA", "NAWN", "OHAL",
-            "PETI", "SDGO", "SHIA", "SUHI", "TUTL"]
+all_sites = ["SJWN", "CIHO", "FALA", "HOPN", "HOWN",
+             "SISE", "MABT", "TUYN", "NAWN", "HOLA",
+             "PETI", "MAGN", "SIYL", "SUHY", "SIGK"]
 
 # 合成資料負責人
 totals_person = {
-    "TORO": ["shiming.chen@gmail.com"],
-    "TOR4": ["shiming.chen@gmail.com"],
-    "KNTN": ["shiming.chen@gmail.com"]
+    "TORO": ["sydney@niar.org.tw", "chiayan.cheng@gmail.com"],
+    "TOR4": ["sydney@niar.org.tw", "chiayan.cheng@gmail.com"],
+    "KNTN": ["sydney@niar.org.tw", "chiayan.cheng@gmail.com"],
 }
 
 all_totals = ["TORO", "TOR4", "KNTN"]
@@ -72,8 +77,12 @@ def generate_filename_radial(time_data, site, path, ideal_or_meas):
 
     if ideal_or_meas.lower() == 'ideal':
         str1 = f"RDLi_{site.upper()}_"
+        if site.upper() == 'SIGK':
+            str1 = f"RDLi_TUTL_"
     else:
         str1 = f"RDLm_{site.upper()}_"
+        if site.upper() == 'SIGK':
+            str1 = f"RDLm_TUTL_"
 
     str2 = f"{time_data['year']}_"
     str3 = f"{time_data['month']}_"
@@ -103,6 +112,22 @@ def get_file_size(filepath):
         return 0  # 若檔案不存在，返回大小為 0
 
 
+# 檢查檔案內容記錄數量
+def get_file_record_size(filepath):
+
+    # 這個設定可以讓 np.genfromtxt 讀到空檔案時的 UserWarning 不再顯示
+    warnings.filterwarnings('ignore', category=UserWarning)
+
+    try:
+        # 這裡用 encoding='latin1'的原因是檔案裡面有一些非標準字元，
+        # 預設的 utf-8 遇到非標準字元會出錯，
+        # 而 latin1 可以容忍大部分的非標準字元。
+        dat = np.genfromtxt(filepath, comments='%', encoding='latin1')
+        return dat.shape[0]  # 返回檔案的記錄數量
+    except FileNotFoundError:
+        return 0  # 若檔案不存在，返回記錄值為 0
+
+
 # 使用 Gmail SMTP 發送 Email
 def send_email_via_gmail(subject, message, recipient):
 
@@ -125,8 +150,9 @@ def get_file_size_radial(t, site, ideal_or_meas):
     path_radial = f"{seasonde_dir}/Data/RadialSites/Site_{site}_{ideal_or_meas.lower()}/"
     filepath = generate_filename_radial(t, site, path_radial, ideal_or_meas)
     file_size = get_file_size(filepath)
+    file_record_size = get_file_record_size(filepath)
 
-    return file_size, filepath
+    return file_size, file_record_size, filepath
 
 
 def get_file_size_totals(t, tor4_or_toro):
@@ -134,8 +160,9 @@ def get_file_size_totals(t, tor4_or_toro):
     path_totals = f"{seasonde_dir}/Data/Totals/Totals_{tor4_or_toro.upper()}"
     filepath = generate_filename_totals(t, path_totals)
     file_size = get_file_size(filepath)
+    file_record_size = get_file_record_size(filepath)
 
-    return file_size, filepath
+    return file_size, file_record_size, filepath
 
 
 def check_radial(t_radar, t_now, min_file_size=1000):
@@ -156,10 +183,10 @@ def check_radial(t_radar, t_now, min_file_size=1000):
         for ideal_or_meas in ['meas', 'ideal']:
 
             # 檢查 radial ideal 資料檔案大小
-            file_size, filepath[ideal_or_meas] = get_file_size_radial(t_radar, site, ideal_or_meas)
+            file_size, file_record_size, filepath[ideal_or_meas] = get_file_size_radial(t_radar, site, ideal_or_meas)
 
             # 如果檔案大小小於最小值，則記錄異常並發送警告郵件
-            if file_size < min_file_size:
+            if file_size < min_file_size or file_record_size == 0:
                 warning[ideal_or_meas] = True
                 
         if warning['meas'] and warning['ideal']:
@@ -179,12 +206,12 @@ def check_radial(t_radar, t_now, min_file_size=1000):
                     # 寄出警告信
                     subject = f"{site} Radial 異常警示"
                     message = f"{site} {t_radar_log} 檔案異常，請盡速確認系統狀況。\n\n"
-                    
+ 
                     if warning['meas']:
                         message += f"{filepath['meas']}\n"
                     if warning['ideal']:
                         message += f"{filepath['ideal']}\n"
-                    
+
                     send_email_via_gmail(subject, message, site_person[site])
 
         else:
@@ -211,10 +238,10 @@ def check_totals(t_radar, t_now, min_file_size=1000):
     for dd in all_totals:
 
         # 檢查 totals 資料檔案大小
-        file_size, filepath = get_file_size_totals(t_radar, dd)
+        file_size, file_record_size, filepath = get_file_size_totals(t_radar, dd)
 
         # 如果檔案大小小於最小值，則記錄異常並發送警告郵件
-        if file_size < min_file_size:
+        if file_size < min_file_size or file_record_size == 0:
 
             log_msg = f"*{dd}* 異常 {t_log_str}"
             log(fname, log_msg)
@@ -292,8 +319,8 @@ def remove_sending(site_str):
 
 # 為了檢視 log 的便利性，在 log 內的時間標記會使用 UTC+8 時區
 # 但雷達系統的時間是 UTC 時區，所以要注意時間的轉換
-t_now_p8 = datetime.datetime.strptime("2025-06-30T20", "%Y-%m-%dT%H")   #  測試使用，之後要修改為目前時間
-#t_now_p8 = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
+#t_now_p8 = datetime.datetime.strptime("2025-06-30T20", "%Y-%m-%dT%H")   #  測試使用，之後要修改為目前時間
+t_now_p8 = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
 
 # 設定檢查時間為 2 小時前。注意：這裡的時間是 UTC 時區
 delta_t_check = datetime.timedelta(hours=-2)
